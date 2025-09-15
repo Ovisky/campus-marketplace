@@ -27,6 +27,10 @@ const updateOrderStatusSchema = z.object({
 router.post('/', authenticateToken, async (req: AuthRequest, res) => {
   try {
     const data = createOrderSchema.parse(req.body);
+    // 禁用用户不可下单
+    if (req.user && req.user.isActive === false) {
+      return res.status(403).json({ message: '账号已被禁用，无法下单' });
+    }
     
     // 检查商品是否存在且可购买
     const item = await Item.findById(data.itemId).populate('seller');

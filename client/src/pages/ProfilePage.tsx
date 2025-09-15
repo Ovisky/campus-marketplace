@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/api';
 
 const ProfilePage: React.FC = () => {
-  const { user, token } = useAuth();
+  const { user, token, setUserAndPersist } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -73,7 +73,10 @@ const ProfilePage: React.FC = () => {
 
     setLoading(true);
     try {
-      await apiService.updateProfile(formData);
+      const result = await apiService.updateProfile(formData);
+      if (result && result.user) {
+        setUserAndPersist(result.user as any);
+      }
       setIsEditing(false);
       // 这里可以添加成功提示
       alert('个人资料更新成功！');

@@ -9,6 +9,7 @@ interface AuthContextType {
   register: (studentId: string, email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
+  setUserAndPersist: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -91,13 +92,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  const setUserAndPersist = (updated: User) => {
+    const normalized = { ...updated, _id: (updated as any)._id || (updated as any).id } as any;
+    setUser(normalized);
+    localStorage.setItem('user', JSON.stringify(normalized));
+  };
+
   const value = {
     user,
     token,
     login,
     register,
     logout,
-    loading
+    loading,
+    setUserAndPersist
   };
 
   return (

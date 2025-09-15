@@ -8,6 +8,34 @@ import { z } from 'zod';
 
 const router = express.Router();
 
+// 删除聊天室（软删除 isActive=false），仅参与者可删除
+router.delete('/rooms/:roomId', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    const { roomId } = req.params;
+
+    const room = await ChatRoom.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ message: '聊天室不存在' });
+    }
+
+    // 仅参与者可删除
+    const isParticipant = room.participants.some((p: any) => p.toString() === userId.toString());
+    if (!isParticipant) {
+      return res.status(403).json({ message: '无权限删除此聊天室' });
+    }
+
+    // 软删除
+    room.isActive = false as any;
+    await room.save();
+
+    return res.json({ message: '聊天室已删除' });
+  } catch (error) {
+    console.error('❌ Delete chat room error:', error);
+    return res.status(500).json({ message: '删除聊天室失败' });
+  }
+});
+
 // 获取用户的聊天室列表
 router.get('/rooms', authenticateToken, async (req, res) => {
   try {

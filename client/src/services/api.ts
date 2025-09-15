@@ -265,6 +265,12 @@ class ApiService {
     });
   }
 
+  async deleteChatRoom(roomId: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/chat/rooms/${roomId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // 管理后台相关
   async getAdminUsers(params: {
     page?: number;

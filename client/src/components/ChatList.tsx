@@ -93,6 +93,22 @@ const ChatList: React.FC<ChatListProps> = ({ currentUserId }) => {
     ));
   };
 
+  const handleDeleteRoom = async (roomId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    try {
+      await apiService.deleteChatRoom(roomId);
+      setChatRooms(prev => prev.filter(r => r.id !== roomId));
+      if (selectedRoom?.id === roomId) {
+        setSelectedRoom(null);
+      }
+    } catch (error) {
+      console.error('删除聊天室失败:', error);
+      alert('删除失败，请重试');
+    }
+  };
+
   const handleCloseChat = () => {
     setSelectedRoom(null);
   };
@@ -202,6 +218,13 @@ const ChatList: React.FC<ChatListProps> = ({ currentUserId }) => {
                           <span className="text-xs text-gray-500">
                             {formatLastMessageTime(room.lastMessageAt)}
                           </span>
+                          <button
+                            onClick={(e) => handleDeleteRoom(room.id, e)}
+                            title="删除聊天室"
+                            className="border-2 border-green-600 text-green-600 bg-white px-3 py-1 rounded-lg hover:bg-green-50 transition-colors"
+                          >
+                            删除
+                          </button>
                         </div>
                       </div>
                       
